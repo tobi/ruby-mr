@@ -4,10 +4,6 @@ require 'lib/job'
 
 class Wordcount < Job
 
-  def initialize
-    @prev_key, @key_total = nil, 0
-  end
-
   def mapper(line)
     return unless line =~ /POST \/orders\/(\d+)\/([a-f0-9]+)\/commit/
 
@@ -20,14 +16,10 @@ class Wordcount < Job
 
   def reduce(key, value)
 
-    if @prev_key && key != @prev_key && @key_total > 0
-      yield @prev_key, @key_total
-      @prev_key, @key_total = key, 0
-    elsif !@prev_key
-      @prev_key = key
+    aggregate(key) do |key, count|
+      yield key, count
     end
 
-    @key_total += 1
   end
 end
 

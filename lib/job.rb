@@ -4,6 +4,26 @@ class Job
     self.new.run
   end
 
+  def increment(group, name, amount = 1)
+    STDERR.puts "reporter:counter:#{group}:#{name},#{amount}"
+  end
+
+  def status(message)
+    STDERR.puts "reporter:status:#{message}"
+  end
+
+  def aggregate(name)
+    if @prev_key.nil?
+      @prev_key = name
+      @key_total = 0
+    elsif name != @prev_key && @key_total > 0
+      yield @prev_key, @key_total
+      @prev_key, @key_total = name, 0
+    end
+
+    @key_total += 1
+  end
+
   def run
     case ARGV[0]
     when '-mapper'
@@ -24,7 +44,10 @@ class Job
       STDERR.puts "no parameter, running \"#{cmd}\""
       exec cmd
     end
-
+  rescue => e
+    status "#{e.class.name}: #{e.message}"
+    STDERR.puts "#{e.class.name}: #{e.message}"
+    STDERR.puts e.backtrace.join("\n")
   end
 
 end
