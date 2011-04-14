@@ -7,12 +7,8 @@ require 'job'
 class Wordcount < Job
 
   def mapper(line)
-    return unless line =~ /POST \/orders\/(\d+)\/([a-f0-9]+)\/commit/
-
-    if line =~  /(iPhone|Android|Blackberry)/i
-      yield $1.downcase, 1
-    else
-      yield 'browser', 1
+    line.split.each do |word|
+      yield word.downcase, 1
     end
   end
 

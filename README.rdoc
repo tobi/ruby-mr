@@ -1,0 +1,43 @@
+== Hadoop streaming library
+
+Write hadoop tasks in ruby.
+
+== Example:
+
+  require 'job'
+
+  class Wordcount < Job
+
+    def mapper(line)
+      line.split.each do |word|
+        yield word.downcase, 1
+      end
+    end
+
+    def reduce(key, value)
+
+      aggregate(key) do |key, count|
+        yield key, count
+      end
+
+    end
+  end
+
+  Wordcount.run
+
+= Testing:
+
+  cat romeojuliet.txt | ruby map.rb -mapper | sort | ruby map.rb -reduce 
+
+If this works and gives you teh expected result the tool will work in hadoop as well
+
+= Production:
+
+install this as a gem so that require 'job' is available, then simply load all the files to scan into a directory (sonnets) and run the following command to start map / reduce
+
+  $HADOOP_HOME/bin/hadoop  jar $HADOOP_HOME/hadoop-streaming.jar \
+      -input sonnets \
+      -output home \
+      -mapper map.rb -mapper \
+      -reducer map.rb -reduce \
+      -file map.rb
