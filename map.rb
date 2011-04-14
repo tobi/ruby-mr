@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
-require 'lib/job'
+$LOAD_PATH.unshift 'lib'
+
+require 'job'
 
 class Wordcount < Job
 
